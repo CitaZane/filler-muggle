@@ -3,6 +3,8 @@ mod piece;
 mod movement;
 mod parser;
 
+use std::cmp;
+
 pub use parser::*;
 use anfield::*;
 use piece::*;
@@ -31,10 +33,11 @@ impl Game{
             println!("0 0");
             return
         }
-        // self.calc_move_value()
+        self.calc_move_values();
         // Sort by value
         self.moves.sort_by(|a, b| a.value.partial_cmp(&b.value).unwrap());
-        println!("{} {}", self.moves[0].col, self.moves[0].row);
+        let res = self.moves.len() -1;
+        println!("{} {}", self.moves[res].col, self.moves[res].row);
 
     }
     fn find_all_valid_spaces(&mut self){
@@ -47,6 +50,49 @@ impl Game{
                 }
             }
         }
+    }
+    fn calc_move_values(&mut self){
+        for i in 0..self.moves.len(){
+            let edge = self.distance_to_edge(i);
+            let oponent_distance = self.distance_to_opponent(i);
+            self.moves[i].value = edge + oponent_distance;
+        }
+    }
+    fn distance_to_opponent(&self, move_index: usize)-> i32{
+        let mut  distance = self.anfield.height() as i32 * 2;
+        let m = &self.moves[move_index];
+        // returns distance to closest edge
+        for row in 0..self.anfield.height(){
+            for col in 0..self.anfield.width(){
+                match self.anfield.0[row][col]{
+                    Cell::Player1(_n)=>{
+                        if self.player == 1{ continue}
+                        let new_dist = calc_distance(row, col, m.row, m.col);
+                        if new_dist < distance{
+                            distance = new_dist
+                        }
+                    },
+                    Cell::Player2(_n)=>{
+                        if self.player == 2{continue}
+                        let new_dist = calc_distance(row, col, m.row, m.col);
+                        if new_dist < distance{
+                            distance = new_dist
+                        }
+                    },
+                    _=>{}
+                }
+            }
+        }
+        distance as i32
+
+    }
+    fn distance_to_edge(&self, move_index: usize)-> i32{
+        // returns distance to closest opponent
+        
+        let m = &self.moves[move_index];
+        let left_edge = m.col;
+        let right_edge = self.anfield.width() - m.col + self.piece.width();
+        cmp::min(left_edge, right_edge) as i32
     }
     fn piece_placement_valid(&self, row:usize, col:usize) -> bool{
         let mut overlap = 0;
@@ -76,4 +122,16 @@ impl Game{
         }
         false
     }
+}
+
+fn calc_distance(x1:usize, y1 :usize, x2: usize, y2:usize) -> i32{
+    let dx = i32::abs(x2 as i32 - x1 as i32);
+    let dy = i32::abs(y2 as i32 - y1 as i32);
+
+    let min = cmp::min(dx, dy);
+    let max = cmp::max(dx, dy);
+
+    let diognal_steps = min;
+    let straight_steps = max-min;
+    (1.4 * diognal_steps as f32 ) as i32 + straight_steps
 }
