@@ -1,1 +1,3 @@
 robot/target
+docker_image
+.DS_Store
