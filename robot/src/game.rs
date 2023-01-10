@@ -33,8 +33,10 @@ impl Game{
             println!("0 0");
             return
         }
-        self.calc_move_values();
-        // Sort by value
+        self.calc_move_stats();
+        self.find_best_move();
+    }
+    fn find_best_move(&mut self){
         // self.moves.sort_by(|a, b| a.value.partial_cmp(&b.value).unwrap());
         self.moves.sort_by(|a, b| a.distance.partial_cmp(&b.distance).unwrap());
         for i in 0..self.moves.len(){
@@ -46,10 +48,9 @@ impl Game{
             self.moves[i].value += i as f32;
         }
         self.moves.sort_by(|a, b| a.value.partial_cmp(&b.value).unwrap());
-        let res = self.moves.len() -1;
+        // let res = self.moves.len() -1;
         // println!("{} {}", self.moves[res].col, self.moves[res].row);
         println!("{} {}", self.moves[0].col, self.moves[0].row);
-
     }
     fn find_all_valid_spaces(&mut self){
         self.moves = vec![];
@@ -62,15 +63,11 @@ impl Game{
             }
         }
     }
-    fn calc_move_values(&mut self){
+    fn calc_move_stats(&mut self){
         for i in 0..self.moves.len(){
             let edge = self.distance_to_edge(i);
-            // let oponent_distance = self.distance_to_opponent(i);
-            // self.moves[i].value = edge as f32 + oponent_distance;
-            // self.moves[i].value =  oponent_distance;
-            self.distance_to_opponent(i);
             self.moves[i].register_edge(edge); 
-            // self.moves[i].calc_value();
+            self.distance_to_opponent(i);
         }
     }
     fn distance_to_opponent(&mut self, move_index: usize){
