@@ -19,9 +19,10 @@ impl Move {
             self.distance = new_dist;
         }
     }
-    // pub fn calc_value(&mut self){
-    //     self.value = self.distance
-    // }
+    pub fn calc_value(&mut self) -> f32{
+        self.value = (self.distance*3.) / self.edge as f32;
+        self.value
+    }
     pub fn register_edge(&mut self, edge: i32){
         self.edge = edge
     }

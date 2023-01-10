@@ -15,6 +15,7 @@ pub struct Game<'a>{
     pub piece:&'a Piece,
     pub player: usize,
     moves :Vec<Move>,
+    best_move:Move,
 }
 
 
@@ -25,6 +26,7 @@ impl<'a> Game<'a>{
             anfield,
             player,
             moves:vec![],
+            best_move:Move::new(0,0),
         }
     }
     pub fn place_piece(&mut self){
@@ -34,23 +36,7 @@ impl<'a> Game<'a>{
             return
         }
         self.calc_move_stats();
-        self.find_best_move();
-    }
-    fn find_best_move(&mut self){
-        // self.moves.sort_by(|a, b| a.value.partial_cmp(&b.value).unwrap());
-        self.moves.sort_by(|a, b| a.distance.partial_cmp(&b.distance).unwrap());
-        for i in 0..self.moves.len(){
-            self.moves[i].value = i as f32 * 3.;
-        }
-        self.moves.sort_by(|a, b| a.edge.partial_cmp(&b.edge).unwrap());
-        self.moves.reverse();
-        for i in 0..self.moves.len(){
-            self.moves[i].value += i as f32;
-        }
-        self.moves.sort_by(|a, b| a.value.partial_cmp(&b.value).unwrap());
-        // let res = self.moves.len() -1;
-        // println!("{} {}", self.moves[res].col, self.moves[res].row);
-        println!("{} {}", self.moves[0].col, self.moves[0].row);
+        println!("{} {}", self.best_move.col, self.best_move.row);
     }
     fn find_all_valid_spaces(&mut self){
         self.moves = vec![];
@@ -68,6 +54,14 @@ impl<'a> Game<'a>{
             let edge = self.distance_to_edge(i);
             self.moves[i].register_edge(edge); 
             self.distance_to_opponent(i);
+            let value = self.moves[i].calc_value();
+            if i == 0 {
+                self.best_move = self.moves[0].clone()
+            }else{
+                if value < self.best_move.value{
+                    self.best_move = self.moves[i].clone()
+                }
+            }
         }
     }
     fn distance_to_opponent(&mut self, move_index: usize){
