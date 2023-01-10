@@ -35,9 +35,20 @@ impl Game{
         }
         self.calc_move_values();
         // Sort by value
+        // self.moves.sort_by(|a, b| a.value.partial_cmp(&b.value).unwrap());
+        self.moves.sort_by(|a, b| a.distance.partial_cmp(&b.distance).unwrap());
+        for i in 0..self.moves.len(){
+            self.moves[i].value = i as f32 * 3.;
+        }
+        self.moves.sort_by(|a, b| a.edge.partial_cmp(&b.edge).unwrap());
+        self.moves.reverse();
+        for i in 0..self.moves.len(){
+            self.moves[i].value += i as f32;
+        }
         self.moves.sort_by(|a, b| a.value.partial_cmp(&b.value).unwrap());
         let res = self.moves.len() -1;
-        println!("{} {}", self.moves[res].col, self.moves[res].row);
+        // println!("{} {}", self.moves[res].col, self.moves[res].row);
+        println!("{} {}", self.moves[0].col, self.moves[0].row);
 
     }
     fn find_all_valid_spaces(&mut self){
@@ -54,45 +65,43 @@ impl Game{
     fn calc_move_values(&mut self){
         for i in 0..self.moves.len(){
             let edge = self.distance_to_edge(i);
-            let oponent_distance = self.distance_to_opponent(i);
-            self.moves[i].value = edge + oponent_distance;
+            // let oponent_distance = self.distance_to_opponent(i);
+            // self.moves[i].value = edge as f32 + oponent_distance;
+            // self.moves[i].value =  oponent_distance;
+            self.distance_to_opponent(i);
+            self.moves[i].register_edge(edge); 
+            // self.moves[i].calc_value();
         }
     }
-    fn distance_to_opponent(&self, move_index: usize)-> i32{
-        let mut  distance = self.anfield.height() as i32 * 2;
-        let m = &self.moves[move_index];
-        // returns distance to closest edge
+    fn distance_to_opponent(&mut self, move_index: usize){
+
         for row in 0..self.anfield.height(){
             for col in 0..self.anfield.width(){
                 match self.anfield.0[row][col]{
                     Cell::Player1(_n)=>{
                         if self.player == 1{ continue}
-                        let new_dist = calc_distance(row, col, m.row, m.col);
-                        if new_dist < distance{
-                            distance = new_dist
-                        }
+                        self.moves[move_index].calc_distance(row, col);
                     },
                     Cell::Player2(_n)=>{
                         if self.player == 2{continue}
-                        let new_dist = calc_distance(row, col, m.row, m.col);
-                        if new_dist < distance{
-                            distance = new_dist
-                        }
+                        self.moves[move_index].calc_distance(row, col);
                     },
                     _=>{}
                 }
             }
         }
-        distance as i32
-
     }
     fn distance_to_edge(&self, move_index: usize)-> i32{
-        // returns distance to closest opponent
+        // returns distance to closest edge
         
         let m = &self.moves[move_index];
         let left_edge = m.col;
+        let up_edge = m.row;
         let right_edge = self.anfield.width() - m.col + self.piece.width();
-        cmp::min(left_edge, right_edge) as i32
+        let down_edge = self.anfield.height() - m.row + self.piece.height();
+        let first_winner = cmp::max(left_edge, right_edge) as i32;
+        let second_winner=cmp::max(down_edge, up_edge) as i32;
+        cmp::max(first_winner, second_winner)
     }
     fn piece_placement_valid(&self, row:usize, col:usize) -> bool{
         let mut overlap = 0;
@@ -124,14 +133,3 @@ impl Game{
     }
 }
 
-fn calc_distance(x1:usize, y1 :usize, x2: usize, y2:usize) -> i32{
-    let dx = i32::abs(x2 as i32 - x1 as i32);
-    let dy = i32::abs(y2 as i32 - y1 as i32);
-
-    let min = cmp::min(dx, dy);
-    let max = cmp::max(dx, dy);
-
-    let diognal_steps = min;
-    let straight_steps = max-min;
-    (1.4 * diognal_steps as f32 ) as i32 + straight_steps
-}
