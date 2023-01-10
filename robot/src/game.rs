@@ -10,20 +10,20 @@ use anfield::*;
 use piece::*;
 use movement::*;
 
-pub struct Game{
-    pub anfield:Anfield,
-    pub piece:Piece,
+pub struct Game<'a>{
+    pub anfield:&'a Anfield,
+    pub piece:&'a Piece,
     pub player: usize,
     moves :Vec<Move>,
 }
 
 
-impl Game{
-    pub fn new()->Self{
+impl<'a> Game<'a>{
+    pub fn new(piece:&'a Piece, anfield:&'a Anfield, player: usize)->Self{
         Self{
-            anfield:Anfield::new(0,0),
-            piece:Piece::new(0,0),
-            player:0,
+            piece,
+            anfield,
+            player,
             moves:vec![],
         }
     }
