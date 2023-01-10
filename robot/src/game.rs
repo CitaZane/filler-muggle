@@ -40,8 +40,8 @@ impl<'a> Game<'a>{
     }
     fn find_all_valid_spaces(&mut self){
         self.moves = vec![];
-        for row in 0..=self.anfield.height()-self.piece.height(){
-            for col in 0..=self.anfield.width()-self.piece.width(){
+        for row in 0..=self.anfield.height()-self.piece.height{
+            for col in 0..=self.anfield.width()-self.piece.width{
                 let valid = self.piece_placement_valid(row, col);
                 if valid{
                     self.moves.push(Move::new(row, col));
@@ -83,43 +83,39 @@ impl<'a> Game<'a>{
         }
     }
     fn distance_to_edge(&self, move_index: usize)-> i32{
-        // returns distance to closest edge
-        
+        // returns distance to far edge
         let m = &self.moves[move_index];
         let left_edge = m.col;
         let up_edge = m.row;
-        let right_edge = self.anfield.width() - m.col + self.piece.width();
-        let down_edge = self.anfield.height() - m.row + self.piece.height();
+        let right_edge = self.anfield.width() - m.col + self.piece.width;
+        let down_edge = self.anfield.height() - m.row + self.piece.height;
+        
         let first_winner = cmp::max(left_edge, right_edge) as i32;
         let second_winner=cmp::max(down_edge, up_edge) as i32;
         cmp::max(first_winner, second_winner)
     }
     fn piece_placement_valid(&self, row:usize, col:usize) -> bool{
         let mut overlap = 0;
-        for piece_row in 0..self.piece.height(){
-            for piece_col in 0..self.piece.width(){
-                if self.piece.0[piece_row][piece_col] == Tile::Empty{continue}
-                let cell = self.anfield.0[piece_row+row][piece_col+col].to_owned();
-                match cell {
-                    Cell::Empty => {},
-                    Cell::Player1(_n) => {
-                        if self.player != 1{return false}
-                        overlap +=1;
-                    },
-                    Cell::Player2(_n) => {
-                        if self.player != 2{return false}
-                        overlap +=1;
-                    },
-                }
-                if overlap >=2 {
-                    return false
-                }
-
+        for tile in self.piece.tiles.iter(){
+            let cell = &self.anfield.0[tile.0+row][tile.1+col];
+            match cell {
+                Cell::Empty => {},
+                Cell::Player1(_n) => {
+                    if self.player != 1{return false}
+                    overlap +=1;
+                },
+                Cell::Player2(_n) => {
+                    if self.player != 2{return false}
+                    overlap +=1;
+                },
+            }
+            if overlap >=2 {
+                return false
             }
         }
         if overlap == 1 {
-            return true
-        }
+                return true
+            }
         false
     }
 }

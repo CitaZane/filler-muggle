@@ -35,7 +35,7 @@ impl Parser{
             self.register_field_occupancy(input);
         }else if self.mode == Mode::Piece{
             self.register_piece_occupancy(input);
-            if self.current_row == self.piece.as_ref().unwrap().height(){
+            if self.current_row == self.piece.as_ref().unwrap().height{
                 self.mode = Mode::None;
                 return true
             }
@@ -85,19 +85,18 @@ impl Parser{
     }
     fn register_piece_occupancy(&mut self, input : &str){
         for (i,cell) in input.chars().enumerate(){
-            let tile = match cell{
-                '.' => Tile::Empty,
-                _ => Tile::Taken,
-            };
-            self.overwrite_piece(tile, i);
+            if cell != '.'{
+                self.piece.as_mut().unwrap().add_tile(self.current_row, i);
+                // self.overwrite_piece(i);
+            }
         }
         self.current_row +=1;
     }
-    fn overwrite_piece(&mut self, tile:Tile, col:usize){
-        let piece = self.piece.as_mut().unwrap();
-        piece.0[self.current_row][col] = tile;
-        self.piece= Some(piece.to_owned());
-    }
+    // fn overwrite_piece(&mut self,col:usize){
+    //     let piece = self.piece.as_mut().unwrap();
+    //     piece.add_tile(self.current_row, col);
+    //     self.piece= Some(piece.to_owned());
+    // }
 }
 
 fn parse_two_numbers(input:&str)-> (usize, usize){
@@ -148,6 +147,7 @@ Piece 4 1:
         assert_eq!(parser.anfield.as_ref().unwrap().0[2][9], Cell::Player1(0));
         assert_eq!(parser.anfield.as_ref().unwrap().0[12][9], Cell::Player2(0));
         assert_eq!(parser.anfield.as_ref().unwrap().0[0][0], Cell::Empty);
+        assert_eq!(parser.piece.as_ref().unwrap().tiles.len(), 2);
     }
 
     #[test]
