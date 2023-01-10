@@ -13,7 +13,7 @@ fn main() {
             let piece = parser.piece.as_ref().unwrap();
             let anfield = parser.anfield.as_ref().unwrap();
             let player = parser.current_player;
-
+            
             let mut game = Game::new(piece, anfield, player);
 
             game.place_piece();

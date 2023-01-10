@@ -31,6 +31,7 @@ impl<'a> Game<'a>{
     }
     pub fn place_piece(&mut self){
         self.find_all_valid_spaces();
+        
         if self.moves.len() == 0 {
             println!("0 0");
             return
@@ -65,7 +66,6 @@ impl<'a> Game<'a>{
         }
     }
     fn distance_to_opponent(&mut self, move_index: usize){
-
         for row in 0..self.anfield.height(){
             for col in 0..self.anfield.width(){
                 match self.anfield.0[row][col]{
@@ -79,6 +79,7 @@ impl<'a> Game<'a>{
                     },
                     _=>{}
                 }
+                // if self.moves[move_index].distance < 1. {return}
             }
         }
     }
@@ -89,7 +90,6 @@ impl<'a> Game<'a>{
         let up_edge = m.row;
         let right_edge = self.anfield.width() - m.col + self.piece.width;
         let down_edge = self.anfield.height() - m.row + self.piece.height;
-        
         let first_winner = cmp::max(left_edge, right_edge) as i32;
         let second_winner=cmp::max(down_edge, up_edge) as i32;
         cmp::max(first_winner, second_winner)
