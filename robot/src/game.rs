@@ -3,7 +3,6 @@ mod piece;
 mod movement;
 mod parser;
 
-use std::cmp;
 
 pub use parser::*;
 use anfield::*;
@@ -46,10 +45,9 @@ impl<'a> Game<'a>{
         for row in 0..=self.anfield.height()-self.piece.height{
             for col in 0..=self.anfield.width()-self.piece.width{
                 let valid = self.piece_placement_valid(row, col);
-                if valid{
-                    self.moves.push(Move::new(row, col));
-                    if self.opponent_stuck{return}
-                }
+                if !valid{continue}
+                self.moves.push(Move::new(row, col));
+                if self.opponent_stuck{return}
             }
         }
     }
@@ -67,60 +65,55 @@ impl<'a> Game<'a>{
                     self.best_move = self.moves[i].clone()
                 }
             }
-            if self.moves[i].value <= 0. {return}
+            if self.moves[i].value == 0. {return}
         }
     }
     fn distance_to_opponent(&mut self, move_index: usize){
         for row in 0..self.anfield.height(){
             for col in 0..self.anfield.width(){
-                match self.anfield.0[row][col]{
-                    Cell::Player1=>{
-                        if self.player == 1{ continue}
-                        self.moves[move_index].calc_distance(row, col);
-                    },
-                    Cell::Player2=>{
-                        if self.player == 2{continue}
-                        self.moves[move_index].calc_distance(row, col);
-                    },
-                    _=>{}
+                if self.opponents_field(row, col){
+                    self.moves[move_index].calc_distance(row, col);
                 }
             }
         }
     }
     fn distance_to_edge(&self, move_index: usize)-> i32{
-        // returns distance to far edge
         let m = &self.moves[move_index];
-        let left_edge = m.col;
-        let up_edge = m.row;
         let right_edge = self.anfield.width() - m.col + self.piece.width;
         let down_edge = self.anfield.height() - m.row + self.piece.height;
-        let first_winner = cmp::max(left_edge, right_edge) as i32;
-        let second_winner=cmp::max(down_edge, up_edge) as i32;
-        cmp::max(first_winner, second_winner)
+        get_biggest_out_of_4(right_edge, down_edge, m.col, m.row)
     }
     fn piece_placement_valid(&self, row:usize, col:usize) -> bool{
         let mut overlap = 0;
         for tile in self.piece.tiles.iter(){
-            let cell = &self.anfield.0[tile.0+row][tile.1+col];
-            match cell {
-                Cell::Empty => {},
-                Cell::Player1 => {
-                    if self.player != 1{return false}
-                    overlap +=1;
-                },
-                Cell::Player2=> {
-                    if self.player != 2{return false}
-                    overlap +=1;
-                },
-            }
+            let row = tile.0+row;
+            let col = tile.1+col;
+            if self.opponents_field(row, col){return false}
+            if self.players_field(row, col){overlap +=1 }
             if overlap >=2 {
                 return false
             }
         }
-        if overlap == 1 {
-                return true
-            }
-            false
+        overlap == 1
+    }
+    fn players_field(&self, row:usize, col:usize) -> bool{
+        match self.anfield.0[row][col]{
+            Cell::Player1 => self.player == 1,
+            Cell::Player2 => self.player == 2,
+            _ => false
+        }
+    }
+    fn opponents_field(&self, row:usize, col:usize) -> bool{
+        match self.anfield.0[row][col]{
+            Cell::Player1 => self.player == 2,
+            Cell::Player2 => self.player == 1,
+            _ => false
+        }
     }
 }
 
+fn get_biggest_out_of_4(one:usize, two:usize, three:usize, four:usize)->i32{
+    let mut data = vec![one as i32, two as i32, three as i32, four as i32];
+    data.sort();
+    data[3]
+}
