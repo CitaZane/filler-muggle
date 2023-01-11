@@ -5,7 +5,7 @@
 And so I present to you my robot : Muggle
 
 ## Muggle
-Muggle certainly lacks any sort of magical ability, he was not born in magical family, but he can do the things that need to be done. And he calculates the best attacking angle based on closest opponent piece and distance from the edge. Mainly putting pressure to the middle of the field. But he has some tricks up his sleeve, so don't underestimate him. But if you are terminator, feel free to underestimate, because the muggle cann't stand a chance against him. 
+Muggle certainly lacks any sort of magical ability, he was not born in magical family, but he can do the things that need to be done. And he calculates the best attacking angle based on closest opponent piece and distance from the edge. Mainly putting pressure to the middle of the field. But he has some tricks up his sleeve, so don't underestimate him. As long as you are not terminator, then feel free to underestimate, because the muggle can't stand a chance against him. 
 
 ## Build and run
 Project as contains only Muggle robot, the game engine, maps and robots that are provided will be added through docker.
@@ -15,7 +15,7 @@ So all it takes is building the docker image
 docker build -t filler .
 ```
 
-Launch the docker container 
+Then launch the docker container 
 
 ```
 docker run -it filler
@@ -43,7 +43,7 @@ Here are the flags and what they mean:
 ## Audits
 [Audit questions](https://github.com/01-edu/public/tree/master/subjects/filler/audit)
 
- And here is a little helper:
+ And here is a little helper, so you can just copy and pase faster:
  ```bash
  #setup
  docker build -t filler .
