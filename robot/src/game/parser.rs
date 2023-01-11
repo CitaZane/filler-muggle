@@ -10,6 +10,7 @@ pub enum Mode{
 pub struct Parser{
     pub mode:Mode,
     pub anfield: Option<Anfield>,
+    initial:bool,
     pub piece: Option<Piece>,
     current_row:usize,
     pub current_player:usize,
@@ -24,6 +25,7 @@ impl Parser{
             current_player:0,
             current_row: 0,
             opponent_stuck:false,
+            initial:true,
         }
     }
     pub fn parse_input(&mut self, input:&str) -> bool{
@@ -34,7 +36,11 @@ impl Parser{
         }else if input.contains("Piece"){
             self.start_piece_mode(input)
         }else if self.mode == Mode::Anfield{
-            self.register_field_occupancy(input);
+            if self.initial{
+                self.register_field_occupancy(input);
+            }else{
+                self.update_anfield(input);
+            }
         }else if self.mode == Mode::Piece{
             self.register_piece_occupancy(input);
             if self.current_row == self.piece.as_ref().unwrap().height{
@@ -53,8 +59,12 @@ impl Parser{
     }
     fn start_anfield_mode(&mut self, input:&str){
         self.mode = Mode::Anfield;
-        let (width, height) = parse_two_numbers(input);
-        self.anfield = Some(Anfield::new(width, height));
+        if self.anfield.is_none(){
+            let (width, height) = parse_two_numbers(input);
+            self.anfield = Some(Anfield::new(width, height));
+        }else{
+            self.initial = false;
+        }
         self.current_row = 0;
         self.opponent_stuck = true;
     }
@@ -68,43 +78,72 @@ impl Parser{
         if input.starts_with("    "){return}
         let mut input = input.split_whitespace().skip(1);
         for (i,cell) in input.next().unwrap().chars().enumerate(){
-            let cell = match cell{
+            match cell{
                 'a' =>{
                     if self.current_player != 1{self.opponent_stuck = false};
-                    Cell::Player1(1)
+                    match self.anfield.as_mut(){
+                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player1(0),
+                        _=> {}
+                    }
+                    // Cell::Player1(1)
                 },
-                '@'=>Cell::Player1(0),
+                '@'=>{
+                    match self.anfield.as_mut(){
+                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player1(0),
+                        _=> {}
+                    }
+                },
                 's' =>{
                     if self.current_player != 2{self.opponent_stuck = false};
-                    Cell::Player2(1)
+                    match self.anfield.as_mut(){
+                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player2(0),
+                        _=> {}
+                    }
                 },
-                '$'=>Cell::Player2(0),
-                '.'=> Cell::Empty,
-                _ => todo!(),
+                '$'=>{
+                    match self.anfield.as_mut(){
+                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player2(0),
+                        _=> {}
+                    }
+                },
+                _=> {}
             };
-            self.overwrite_field(cell, i);
         }
         self.current_row +=1;
     }
-    fn overwrite_field(&mut self, cell:Cell, col:usize){
-        let anfield = self.anfield.as_mut().unwrap();
-        anfield.0[self.current_row][col] = cell;
-        self.anfield = Some(anfield.to_owned());
+    fn update_anfield(&mut self, input : &str){
+        if input.starts_with("    "){return}
+        let mut input = input.split_whitespace().skip(1);
+        for (i,cell) in input.next().unwrap().chars().enumerate(){
+            match cell{
+                'a' =>{
+                    if self.current_player != 1{self.opponent_stuck = false};
+                    match self.anfield.as_mut(){
+                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player1(0),
+                        _=> {}
+                    }
+                },
+                's' =>{
+                    if self.current_player != 2{self.opponent_stuck = false};
+                    match self.anfield.as_mut(){
+                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player2(0),
+                        _=> {}
+                    }
+                },
+                _ => {},
+            };
+        }
+        self.current_row +=1;
     }
+
     fn register_piece_occupancy(&mut self, input : &str){
         for (i,cell) in input.chars().enumerate(){
             if cell != '.'{
                 self.piece.as_mut().unwrap().add_tile(self.current_row, i);
-                // self.overwrite_piece(i);
             }
         }
         self.current_row +=1;
     }
-    // fn overwrite_piece(&mut self,col:usize){
-    //     let piece = self.piece.as_mut().unwrap();
-    //     piece.add_tile(self.current_row, col);
-    //     self.piece= Some(piece.to_owned());
-    // }
 }
 
 fn parse_two_numbers(input:&str)-> (usize, usize){
