@@ -60,16 +60,22 @@ Here are the flags and what they mean:
 ```bash
 #3 student vs wall_e
 ./game_engine -f maps/map00 -p1 robots/muggle -p2 robots/wall_e
+```
+```bash
 ./game_engine -f maps/map00 -p1 robots/wall_e -p2 robots/muggle
 ```
 ```bash
 #4 student vs h2_d2
 ./game_engine -f maps/map01 -p1 robots/muggle -p2 robots/h2_d2
+```
+```bash
 ./game_engine -f maps/map01 -p1 robots/h2_d2 -p2 robots/muggle
 ```
 ```bash
 #4 student vs bender
 ./game_engine -f maps/map02 -p1 robots/muggle -p2 robots/bender
+```
+```bash
 ./game_engine -f maps/map02 -p1 robots/bender -p2 robots/muggle
 
  ```
