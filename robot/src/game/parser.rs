@@ -82,27 +82,27 @@ impl Parser{
                 'a' =>{
                     if self.current_player != 1{self.opponent_stuck = false};
                     match self.anfield.as_mut(){
-                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player1(0),
+                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player1,
                         _=> {}
                     }
                     // Cell::Player1(1)
                 },
                 '@'=>{
                     match self.anfield.as_mut(){
-                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player1(0),
+                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player1,
                         _=> {}
                     }
                 },
                 's' =>{
                     if self.current_player != 2{self.opponent_stuck = false};
                     match self.anfield.as_mut(){
-                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player2(0),
+                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player2,
                         _=> {}
                     }
                 },
                 '$'=>{
                     match self.anfield.as_mut(){
-                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player2(0),
+                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player2,
                         _=> {}
                     }
                 },
@@ -119,14 +119,14 @@ impl Parser{
                 'a' =>{
                     if self.current_player != 1{self.opponent_stuck = false};
                     match self.anfield.as_mut(){
-                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player1(0),
+                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player1,
                         _=> {}
                     }
                 },
                 's' =>{
                     if self.current_player != 2{self.opponent_stuck = false};
                     match self.anfield.as_mut(){
-                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player2(0),
+                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player2,
                         _=> {}
                     }
                 },
@@ -191,8 +191,8 @@ Piece 4 1:
         assert_eq!(parser.current_player, 1);
         assert_eq!(parser.anfield.is_some(), true);
         assert_eq!(parser.piece.is_some(), true);
-        assert_eq!(parser.anfield.as_ref().unwrap().0[2][9], Cell::Player1(0));
-        assert_eq!(parser.anfield.as_ref().unwrap().0[12][9], Cell::Player2(0));
+        assert_eq!(parser.anfield.as_ref().unwrap().0[2][9], Cell::Player1);
+        assert_eq!(parser.anfield.as_ref().unwrap().0[12][9], Cell::Player2);
         assert_eq!(parser.anfield.as_ref().unwrap().0[0][0], Cell::Empty);
         assert_eq!(parser.piece.as_ref().unwrap().tiles.len(), 2);
     }
@@ -251,10 +251,10 @@ Piece 5 1:
         assert_eq!(parser.current_player, 1);
         assert_eq!(parser.anfield.is_some(), true);
         assert_eq!(parser.piece.is_some(), true);
-        assert_eq!(parser.anfield.as_ref().unwrap().0[2][9], Cell::Player1(0));
-        assert_eq!(parser.anfield.as_ref().unwrap().0[2][8], Cell::Player1(1));
-        assert_eq!(parser.anfield.as_ref().unwrap().0[12][9], Cell::Player2(0));
-        assert_eq!(parser.anfield.as_ref().unwrap().0[13][9], Cell::Player2(1));
+        assert_eq!(parser.anfield.as_ref().unwrap().0[2][9], Cell::Player1);
+        assert_eq!(parser.anfield.as_ref().unwrap().0[2][8], Cell::Player1);
+        assert_eq!(parser.anfield.as_ref().unwrap().0[12][9], Cell::Player2);
+        assert_eq!(parser.anfield.as_ref().unwrap().0[13][9], Cell::Player2);
         assert_eq!(parser.anfield.as_ref().unwrap().0[0][0], Cell::Empty);
     }
 }

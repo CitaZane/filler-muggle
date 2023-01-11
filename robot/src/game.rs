@@ -74,11 +74,11 @@ impl<'a> Game<'a>{
         for row in 0..self.anfield.height(){
             for col in 0..self.anfield.width(){
                 match self.anfield.0[row][col]{
-                    Cell::Player1(_n)=>{
+                    Cell::Player1=>{
                         if self.player == 1{ continue}
                         self.moves[move_index].calc_distance(row, col);
                     },
-                    Cell::Player2(_n)=>{
+                    Cell::Player2=>{
                         if self.player == 2{continue}
                         self.moves[move_index].calc_distance(row, col);
                     },
@@ -104,11 +104,11 @@ impl<'a> Game<'a>{
             let cell = &self.anfield.0[tile.0+row][tile.1+col];
             match cell {
                 Cell::Empty => {},
-                Cell::Player1(_n) => {
+                Cell::Player1 => {
                     if self.player != 1{return false}
                     overlap +=1;
                 },
-                Cell::Player2(_n)=> {
+                Cell::Player2=> {
                     if self.player != 2{return false}
                     overlap +=1;
                 },
