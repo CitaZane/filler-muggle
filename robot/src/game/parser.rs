@@ -13,6 +13,7 @@ pub struct Parser{
     pub piece: Option<Piece>,
     current_row:usize,
     pub current_player:usize,
+    pub opponent_stuck:bool,
 }
 impl Parser{
     pub fn new()-> Self{
@@ -22,6 +23,7 @@ impl Parser{
             piece: None,
             current_player:0,
             current_row: 0,
+            opponent_stuck:false,
         }
     }
     pub fn parse_input(&mut self, input:&str) -> bool{
@@ -54,7 +56,7 @@ impl Parser{
         let (width, height) = parse_two_numbers(input);
         self.anfield = Some(Anfield::new(width, height));
         self.current_row = 0;
-
+        self.opponent_stuck = true;
     }
     fn start_piece_mode(&mut self, input:&str){
         self.mode = Mode::Piece;
@@ -67,9 +69,15 @@ impl Parser{
         let mut input = input.split_whitespace().skip(1);
         for (i,cell) in input.next().unwrap().chars().enumerate(){
             let cell = match cell{
-                'a' =>Cell::Player1(1),
+                'a' =>{
+                    if self.current_player != 1{self.opponent_stuck = false};
+                    Cell::Player1(1)
+                },
                 '@'=>Cell::Player1(0),
-                's' =>Cell::Player2(1),
+                's' =>{
+                    if self.current_player != 2{self.opponent_stuck = false};
+                    Cell::Player2(1)
+                },
                 '$'=>Cell::Player2(0),
                 '.'=> Cell::Empty,
                 _ => todo!(),

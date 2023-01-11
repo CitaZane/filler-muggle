@@ -16,6 +16,7 @@ pub struct Game<'a>{
     pub player: usize,
     moves :Vec<Move>,
     best_move:Move,
+    pub opponent_stuck:bool,
 }
 
 
@@ -27,11 +28,12 @@ impl<'a> Game<'a>{
             player,
             moves:vec![],
             best_move:Move::new(0,0),
+            opponent_stuck:false,
         }
     }
+
     pub fn place_piece(&mut self){
         self.find_all_valid_spaces();
-        
         if self.moves.len() == 0 {
             println!("0 0");
             return
@@ -46,23 +48,26 @@ impl<'a> Game<'a>{
                 let valid = self.piece_placement_valid(row, col);
                 if valid{
                     self.moves.push(Move::new(row, col));
+                    if self.opponent_stuck{return}
                 }
             }
         }
     }
     fn calc_move_stats(&mut self){
         for i in 0..self.moves.len(){
+
             let edge = self.distance_to_edge(i);
             self.moves[i].register_edge(edge); 
             self.distance_to_opponent(i);
-            let value = self.moves[i].calc_value();
+            self.moves[i].calc_value();
             if i == 0 {
                 self.best_move = self.moves[0].clone()
             }else{
-                if value < self.best_move.value{
+                if self.moves[i].value < self.best_move.value{
                     self.best_move = self.moves[i].clone()
                 }
             }
+            if self.moves[i].value <= 0. {return}
         }
     }
     fn distance_to_opponent(&mut self, move_index: usize){
@@ -79,7 +84,6 @@ impl<'a> Game<'a>{
                     },
                     _=>{}
                 }
-                // if self.moves[move_index].distance < 1. {return}
             }
         }
     }
@@ -104,7 +108,7 @@ impl<'a> Game<'a>{
                     if self.player != 1{return false}
                     overlap +=1;
                 },
-                Cell::Player2(_n) => {
+                Cell::Player2(_n)=> {
                     if self.player != 2{return false}
                     overlap +=1;
                 },
@@ -116,7 +120,7 @@ impl<'a> Game<'a>{
         if overlap == 1 {
                 return true
             }
-        false
+            false
     }
 }
 

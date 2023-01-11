@@ -15,6 +15,7 @@ fn main() {
             let player = parser.current_player;
             
             let mut game = Game::new(piece, anfield, player);
+            game.opponent_stuck = parser.opponent_stuck;
 
             game.place_piece();
         }  
