@@ -10,7 +10,7 @@ pub struct Move{
 impl Move {
     pub fn new(row:usize, col:usize) -> Self{
         Self{
-            row, col, value:0.,distance:999.,edge:0,
+            row, col, value:0.,distance:f32::MAX,edge:0,
         }
     }
     pub fn calc_distance(&mut self, field_row:usize, field_col:usize){
