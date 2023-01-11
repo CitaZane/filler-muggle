@@ -6,11 +6,9 @@ impl Anfield{
     pub fn new(width:usize, height :usize)->Self{
         Self(vec![vec![Cell::Empty; width]; height])
     }
-    #[allow(dead_code)]
     pub fn height(&self) -> usize{
         self.0.len()
     }
-    #[allow(dead_code)]
     pub fn width(&self) -> usize{
         self.0[0].len()
     }

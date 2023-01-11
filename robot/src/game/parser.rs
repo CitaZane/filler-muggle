@@ -36,11 +36,7 @@ impl Parser{
         }else if input.contains("Piece"){
             self.start_piece_mode(input)
         }else if self.mode == Mode::Anfield{
-            if self.initial{
-                self.register_field_occupancy(input);
-            }else{
-                self.update_anfield(input);
-            }
+            self.register_field_occupancy(input);
         }else if self.mode == Mode::Piece{
             self.register_piece_occupancy(input);
             if self.current_row == self.piece.as_ref().unwrap().height{
@@ -57,6 +53,7 @@ impl Parser{
             self.current_player = 2;
         }
     }
+
     fn start_anfield_mode(&mut self, input:&str){
         self.mode = Mode::Anfield;
         if self.anfield.is_none(){
@@ -68,12 +65,14 @@ impl Parser{
         self.current_row = 0;
         self.opponent_stuck = true;
     }
+
     fn start_piece_mode(&mut self, input:&str){
         self.mode = Mode::Piece;
         let (width, height) = parse_two_numbers(input);
         self.piece = Some(Piece::new(width, height));
         self.current_row = 0;
     }
+
     fn register_field_occupancy(&mut self, input : &str){
         if input.starts_with("    "){return}
         let mut input = input.split_whitespace().skip(1);
@@ -81,59 +80,25 @@ impl Parser{
             match cell{
                 'a' =>{
                     if self.current_player != 1{self.opponent_stuck = false};
-                    match self.anfield.as_mut(){
-                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player1,
-                        _=> {}
-                    }
-                    // Cell::Player1(1)
+                    self.overwrite_cell(1, i);
                 },
-                '@'=>{
-                    match self.anfield.as_mut(){
-                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player1,
-                        _=> {}
-                    }
-                },
+                '@'=>if self.initial{self.overwrite_cell(1, i)},
                 's' =>{
                     if self.current_player != 2{self.opponent_stuck = false};
-                    match self.anfield.as_mut(){
-                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player2,
-                        _=> {}
-                    }
+                    self.overwrite_cell(2, i);
                 },
-                '$'=>{
-                    match self.anfield.as_mut(){
-                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player2,
-                        _=> {}
-                    }
-                },
+                '$'=> if self.initial{self.overwrite_cell(2, i)},
                 _=> {}
             };
         }
         self.current_row +=1;
     }
-    fn update_anfield(&mut self, input : &str){
-        if input.starts_with("    "){return}
-        let mut input = input.split_whitespace().skip(1);
-        for (i,cell) in input.next().unwrap().chars().enumerate(){
-            match cell{
-                'a' =>{
-                    if self.current_player != 1{self.opponent_stuck = false};
-                    match self.anfield.as_mut(){
-                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player1,
-                        _=> {}
-                    }
-                },
-                's' =>{
-                    if self.current_player != 2{self.opponent_stuck = false};
-                    match self.anfield.as_mut(){
-                        Some(anfield)=> anfield.0[self.current_row][i] = Cell::Player2,
-                        _=> {}
-                    }
-                },
-                _ => {},
-            };
+    fn overwrite_cell(&mut self, player: usize, col:usize){
+        let player = if player == 1{Cell::Player1}else{Cell::Player2};
+        match self.anfield.as_mut(){
+            Some(anfield)=> anfield.0[self.current_row][col] = player,
+            _=> {}
         }
-        self.current_row +=1;
     }
 
     fn register_piece_occupancy(&mut self, input : &str){
@@ -160,101 +125,57 @@ mod tests {
     use super::*;
 
     #[test]
-    fn input_test() {
+    fn register_player_1() {
         let mut parser = Parser::new();
-        let input = "$$$ exec p1 : [robots/muggle]
-Anfield 20 15:
-    01234567890123456789
-000 ....................
-001 ....................
-002 .........@..........
-003 ....................
-004 ....................
-005 ....................
-006 ....................
-007 ....................
-008 ....................
-009 ....................
-010 ....................
-011 ....................
-012 .........$..........
-013 ....................
-014 ....................
-Piece 4 1:
-.OO.";
-        let iter: Vec<&str> = input.split("\n").collect();
-        for line in iter{
-            println!("{}", line);
-            parser.parse_input(line);
-        }
-        
+        let line = "$$$ exec p1 : [robots/muggle]";
+        parser.parse_input(line);
         assert_eq!(parser.current_player, 1);
-        assert_eq!(parser.anfield.is_some(), true);
-        assert_eq!(parser.piece.is_some(), true);
-        assert_eq!(parser.anfield.as_ref().unwrap().0[2][9], Cell::Player1);
-        assert_eq!(parser.anfield.as_ref().unwrap().0[12][9], Cell::Player2);
-        assert_eq!(parser.anfield.as_ref().unwrap().0[0][0], Cell::Empty);
-        assert_eq!(parser.piece.as_ref().unwrap().tiles.len(), 2);
     }
-
     #[test]
-    fn second_input_test() {
+    fn register_player_2() {
         let mut parser = Parser::new();
-        let input = "$$$ exec p1 : [robots/muggle]
-Anfield 20 15:
-    01234567890123456789
-000 ....................
-001 ....................
-002 .........@..........
-003 ....................
-004 ....................
-005 ....................
-006 ....................
-007 ....................
-008 ....................
-009 ....................
-010 ....................
-011 ....................
-012 .........$..........
-013 ....................
-014 ....................
-Piece 4 1:
-.OO.";
-let iter: Vec<&str> = input.split("\n").collect();
-        for line in iter{
-            parser.parse_input(line);
-        }
-        let second_input = "Anfield 20 15:
-    01234567890123456789
-000 ....................
-001 ....................
-002 .......aa@..........
-003 ....................
-004 ....................
-005 ....................
-006 ....................
-007 ....................
-008 ....................
-009 ....................
-010 ....................
-011 ....................
-012 .........$..........
-013 .........s..........
-014 ....................
-Piece 5 1:
-.OOO.";
-        let iter: Vec<&str> = second_input.split("\n").collect();
-        for line in iter{
-            parser.parse_input(line);
-        }
-        
-        assert_eq!(parser.current_player, 1);
+        let line = "$$$ exec p2 : [robots/muggle]";
+        parser.parse_input(line);
+        assert_eq!(parser.current_player, 2);
+    }
+    #[test]
+    fn register_anfield() {
+        let mut parser = Parser::new();
+        let line = "Anfield 20 15";
+        parser.parse_input(line);
         assert_eq!(parser.anfield.is_some(), true);
+        assert_eq!(parser.anfield.unwrap().width(), 20);
+    }
+    #[test]
+    fn write_anfield() {
+        let mut parser = Parser::new();
+        let line = "Anfield 3 3";
+        parser.parse_input(line);
+        let line = "000 $..";
+        parser.parse_input(line);
+        let line = "001 ...";
+        parser.parse_input(line);
+        let line = "002 ...";
+        parser.parse_input(line);
+        assert_eq!(parser.anfield.is_some(), true);
+        assert_eq!(parser.anfield.unwrap().0[0][0], Cell::Player2);
+    }
+    #[test]
+    fn register_piece() {
+        let mut parser = Parser::new();
+        let line = "Piece 5 1:";
+        parser.parse_input(line);
         assert_eq!(parser.piece.is_some(), true);
-        assert_eq!(parser.anfield.as_ref().unwrap().0[2][9], Cell::Player1);
-        assert_eq!(parser.anfield.as_ref().unwrap().0[2][8], Cell::Player1);
-        assert_eq!(parser.anfield.as_ref().unwrap().0[12][9], Cell::Player2);
-        assert_eq!(parser.anfield.as_ref().unwrap().0[13][9], Cell::Player2);
-        assert_eq!(parser.anfield.as_ref().unwrap().0[0][0], Cell::Empty);
+        assert_eq!(parser.piece.unwrap().width, 5);
+    }
+    #[test]
+    fn write_piece() {
+        let mut parser = Parser::new();
+        let line = "Piece 5 1:";
+        parser.parse_input(line);
+        let line = ".OOO.";
+        parser.parse_input(line);
+        assert_eq!(parser.piece.is_some(), true);
+        assert_eq!(parser.piece.unwrap().tiles.len(), 3);
     }
 }

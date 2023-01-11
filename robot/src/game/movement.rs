@@ -34,3 +34,31 @@ fn dist_between_points(x1:usize, y1 :usize, x2: usize, y2:usize) -> f32{
 
     (dx*dx + dy*dy).sqrt()
 }
+
+#[cfg(test)]
+mod tests{
+    use super::*;
+
+    #[test]
+    fn distance_test() {
+        let mut m = Move::new(2,3);
+        m.calc_distance(2,5);
+        assert_eq!(m.distance, 2.);
+    }
+    #[test]
+    fn distance_diognal_test() {
+        let mut m = Move::new(2,3);
+        m.calc_distance(6,6);
+        assert_eq!(m.distance, 5.);
+    }
+
+    #[test]
+    fn value_test() {
+        let mut m = Move::new(2,3);
+        m.edge= 5;
+        m.calc_distance(6,6);
+        m.calc_value();
+
+        assert_eq!(m.value, 3.);
+    }
+}
