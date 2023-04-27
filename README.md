@@ -40,10 +40,9 @@ Here are the flags and what they mean:
   -q, -quiet
        Quiet mode
 ```
-## Audits
-[Audit questions](https://github.com/01-edu/public/tree/master/subjects/filler/audit)
+## Helper
 
- And here is a little helper, so you can just copy and pase faster:
+ And here is a little helper, so you can just copy and paste faster:
  ```bash
  #setup
  docker build -t filler .
